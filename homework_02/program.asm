@@ -1,4 +1,5 @@
 ; Program takes two hex-numbers and compute sum
+; it works in EMU8086
 org 100h
      
 .data     
