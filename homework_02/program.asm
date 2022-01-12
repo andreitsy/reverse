@@ -6,14 +6,14 @@ N EQU 4
 input_message db "Please enter hex-number with upper-case letters (it will read only first 4 symbols):", 0Dh,0Ah, 24h
 wrong_input_message db "Wrong input!", 0Dh,0Ah, 24h
 len dw ?
+out_num db 10 dup(?)
 .code
 
 main:
-    ;call read_hex
-    ;mov bx, ax
-    ;call read_hex
-    ;add ax, bx
-    mov ax, 0ABDh
+    call read_hex
+    mov bx, ax
+    call read_hex
+    add ax, bx
     call print_hex
     ret
 
@@ -21,8 +21,14 @@ print_hex:
    push cx
    push dx
    push bx
+   
    mov cx, 0
    mov bx, 10h
+   mov di, 0
+   jnc .beg: ;CF=1 ?
+   mov out_num, '1'
+   mov di, 1
+.beg:   
    mov dx, 0
 .more_digit:
    div bx
@@ -38,7 +44,15 @@ print_hex:
    inc cx
    cmp ax, 0
    jne .more_digit
-   
+
+.num_beg:
+   pop ax
+   mov out_num[di], al 
+   inc di   
+   loop .num_beg
+   mov al, '$'
+   mov out_num[di], al 
+   mov dx, offset out_num
    mov ah, 09h
    int 21h
    
@@ -101,9 +115,11 @@ read_hex:
     cmp bl, '9'
     ja .letter:
     sub bx, '0'
+    jmp .ax_save
 .letter:
     sub bx, 'A'
     add bx, 10
+.ax_save:
     add ax, bx         
     loop .l
 
